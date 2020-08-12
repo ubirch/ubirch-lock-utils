@@ -13,8 +13,8 @@ scalacOptions ++= Seq(
   "-feature"
 )
 scmInfo := Some(ScmInfo(
-  url("https://github.com/ubirch/ubirch-elasticsearch-binary-utils"),
-  "https://github.com/ubirch/ubirch-elasticsearch-binary-utils.git"
+  url("https://github.com/ubirch/ubirch-lock-utils"),
+  "https://github.com/ubirch/ubirch-lock-utils.git"
 ))
 
 /*
