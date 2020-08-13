@@ -34,4 +34,8 @@ object LockingConfig
 
   val redisson: RedissonClient = Redisson.create(redisConfig)
 
+  def close(): Unit = {
+    redisson.shutdown()
+  }
+
 }

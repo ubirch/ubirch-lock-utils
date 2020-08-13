@@ -8,7 +8,7 @@ concurrentRestrictions in Global := Seq(
  ********************************************************/
 
 name := "ubirch-lock-utils"
-version := "0.3.3"
+version := "0.3.4"
 description := "Simple Redis based locking utils"
 organization := "com.ubirch.util"
 homepage := Some(url("http://ubirch.com"))
@@ -76,7 +76,7 @@ val ubirchUtilRedisUtil = ubirchUtilGroup %% "ubirch-redis-utils" % "0.6.1"
 // External dependencies
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.5"
 val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % akkaV
-val redisson = "org.redisson" % "redisson" % "3.12.0"
+val redisson = "org.redisson" % "redisson" % "3.7.5"
 val akkaActor = akkaG %% "akka-actor" % akkaV
 val rediscala = "com.github.etaty" %% "rediscala" % "1.8.0" excludeAll ExclusionRule(organization = s"${akkaActor.organization}", name = s"${akkaActor.name}")
 val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0"
