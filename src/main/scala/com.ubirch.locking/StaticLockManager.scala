@@ -9,3 +9,4 @@ trait StaticLockManager extends RLockManager {
   def unlock: Boolean = rUnlock(lockId)
 
 }
+

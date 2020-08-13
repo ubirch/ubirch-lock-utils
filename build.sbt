@@ -1,10 +1,14 @@
+// see http://www.scala-sbt.org/0.13/docs/Parallel-Execution.html for details
+concurrentRestrictions in Global := Seq(
+  Tags.limit(Tags.Test, 1)
+)
 
 /*
  * BASIC INFORMATION
  ********************************************************/
 
 name := "ubirch-lock-utils"
-version := "0.3.2"
+version := "0.3.3"
 description := "Simple Redis based locking utils"
 organization := "com.ubirch.util"
 homepage := Some(url("http://ubirch.com"))

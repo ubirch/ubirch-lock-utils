@@ -1,10 +1,11 @@
 package com.ubirch.locking
 
 import com.ubirch.locking.config.LockingConfig
+import org.redisson.api.RedissonClient
 
 trait RCounterManager {
 
-  val redisson = LockingConfig.redisson
+  val redisson: RedissonClient = LockingConfig.redisson
 
   def rInc(counterId: String): Long = {
     redisson.getAtomicLong(counterId).incrementAndGet()
