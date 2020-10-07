@@ -81,7 +81,7 @@
         <scalatest.version>3.0.5</scalatest.version>
         <akka.version>2.5.11</akka.version>
         <redisson.version>3.7.5</redisson.version>
-        <rediscala.version>1.5.0</rediscala.version>
+        <rediscala.version>1.8.0</rediscala.version>
         <scala-logging.version>3.9.0</scala-logging.version>
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
@@ -221,6 +221,7 @@
                     <execution>
                         <goals>
                             <goal>compile</goal>
+                            <goal>testCompile</goal>
                         </goals>
                         <configuration>
                             <args>
