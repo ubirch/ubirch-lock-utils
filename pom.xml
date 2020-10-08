@@ -22,7 +22,7 @@
 
     <groupId>com.ubirch.util</groupId>
     <artifactId>ubirch-lock-utils_${scala.major.version}</artifactId>
-    <version>0.3.4</version>
+    <version>0.3.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <licenses>
@@ -62,7 +62,6 @@
     </developers>
 
     <properties>
-
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <build.number>${timestamp}-dev</build.number>
@@ -76,8 +75,8 @@
         <scala.compat.version>2.11</scala.compat.version>
         <scalatest.version>3.0.5</scalatest.version>
 
-        <ubirch-uuid.version>0.1.4</ubirch-uuid.version>
-        <ubirch-redis.version>0.6.1</ubirch-redis.version>
+        <ubirch-uuid.version>0.1.5-SNAPSHOT</ubirch-uuid.version>
+        <ubirch-redis.version>0.6.2-SNAPSHOT</ubirch-redis.version>
         <akka.version>2.5.11</akka.version>
         <redisson.version>3.7.5</redisson.version>
         <rediscala.version>1.8.0</rediscala.version>
@@ -91,39 +90,11 @@
         <maven-dependency-plugin.version>2.8</maven-dependency-plugin.version>
         <scala-maven-plugin.version>3.3.2</scala-maven-plugin.version>
         <maven-surefire-plugin.version>2.7</maven-surefire-plugin.version>
+        <scoverage.plugin.version>1.4.0</scoverage.plugin.version>
         <scalatest-maven-plugin.version>1.0</scalatest-maven-plugin.version>
         <!-- plugins -->
-
     </properties>
 
-    <repositories>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-        <repository>
-            <id>ossrh-release</id>
-            <url>https://oss.sonatype.org/content/repositories/releases</url>
-        </repository>
-        <repository>
-            <id>io.cloudrepo</id>
-            <url>https://ubirch.mycloudrepo.io/public/repositories/ubirch-utils-mvn</url>
-        </repository>
-        <repository>
-            <id>elasticsearch-releases</id>
-            <url>https://artifacts.elastic.co/maven</url>
-        </repository>
-
-    </repositories>
-
-
-    <distributionManagement>
-        <repository>
-            <id>io.cloudrepo</id>
-            <name>Ubirch Public Cloud Repo Repository</name>
-            <url>https://ubirch.mycloudrepo.io/repositories/ubirch-utils-mvn</url>
-        </repository>
-    </distributionManagement>
 
     <dependencies>
 
@@ -175,6 +146,7 @@
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.compat.version}</artifactId>
             <version>${scalatest.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Logging -->
@@ -208,8 +180,37 @@
 
     </dependencies>
 
-    <build>
+    <repositories>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <id>ossrh-release</id>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+        <repository>
+            <id>io.cloudrepo</id>
+            <url>https://ubirch.mycloudrepo.io/public/repositories/mvn-public</url>
+        </repository>
+        <repository>
+            <id>elasticsearch-releases</id>
+            <url>https://artifacts.elastic.co/maven</url>
+        </repository>
+    </repositories>
 
+
+    <distributionManagement>
+        <repository>
+            <id>io.cloudrepo</id>
+            <name>Ubirch Public Cloud Repo Repository</name>
+            <url>https://ubirch.mycloudrepo.io/repositories/mvn-public</url>
+        </repository>
+    </distributionManagement>
+
+    <build>
+        <sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
+        <testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
         <plugins>
 
             <plugin>
@@ -280,6 +281,16 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.scoverage</groupId>
+                <artifactId>scoverage-maven-plugin</artifactId>
+                <version>${scoverage.plugin.version}</version>
+                <configuration>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                    <!-- other parameters -->
+                </configuration>
             </plugin>
 
             <plugin>
