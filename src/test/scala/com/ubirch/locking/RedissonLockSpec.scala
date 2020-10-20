@@ -1,21 +1,33 @@
 package com.ubirch.locking
 
+import com.github.sebruck.EmbeddedRedis
 import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.locking.config.LockingConfig
 import com.ubirch.util.uuid.UUIDUtil
-import org.scalatest.{FeatureSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, FeatureSpec, Matchers}
+import redis.embedded.RedisServer
 
-class RedissonLockSpec extends FeatureSpec
+class RedissonLockSpec extends FeatureSpec with EmbeddedRedis
   with StrictLogging
+  with BeforeAndAfterAll
   with Matchers {
 
-  private val redisson = LockingConfig.redisson
+  var redis: Option[RedisServer] = None
+
+  override def beforeAll(): Unit = {
+    redis = Some(startRedis(6379))
+  }
+
+  override def afterAll {
+    stopRedis(redis.get)
+  }
 
   feature("basic test") {
 
     scenario("create a lock") {
+
       val lockName = s"myLock-${UUIDUtil.uuidStr}"
-      val lock1 = redisson.getLock(lockName)
+      val lock1 = LockingConfig.redisson.getLock(lockName)
       lock1.tryLock()
       lock1.isLocked shouldBe true
       lock1.unlock()
@@ -23,15 +35,17 @@ class RedissonLockSpec extends FeatureSpec
     }
 
     scenario("no lock") {
+
       val lockName = s"myLock-${UUIDUtil.uuidStr}"
-      val lock1 = redisson.getLock(lockName)
+      val lock1 = LockingConfig.redisson.getLock(lockName)
       lock1.isLocked shouldBe false
     }
 
     scenario("read/write lock") {
+
       val lockName = s"myLock-${UUIDUtil.uuidStr}"
 
-      val lock1 = redisson.getReadWriteLock(lockName)
+      val lock1 = LockingConfig.redisson.getReadWriteLock(lockName)
 
       lock1.readLock().isLocked shouldBe false
       lock1.writeLock().isLocked shouldBe false
@@ -57,13 +71,15 @@ class RedissonLockSpec extends FeatureSpec
       lock1.writeLock().isLocked shouldBe false
     }
 
-    //    scenario("simple semaphore test") {
-    //      val semaphore = redisson.getSemaphore("semaphore")
-    //      semaphore.tryAcquire shouldBe true
-    //      semaphore.isExists  shouldBe true
-    //      semaphore.release()
-    //      semaphore.isExists  shouldBe false
-    //    }
+    scenario("simple semaphore test") {
 
+      val semaphore = LockingConfig.redisson.getSemaphore("semaphore")
+      semaphore.tryAcquire shouldBe false
+      semaphore.isExists shouldBe false
+      semaphore.release()
+      semaphore.tryAcquire shouldBe true
+      semaphore.isExists shouldBe true
+    }
   }
+
 }

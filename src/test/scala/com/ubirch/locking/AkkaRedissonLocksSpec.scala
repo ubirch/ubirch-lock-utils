@@ -1,19 +1,21 @@
 package com.ubirch.locking
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import akka.pattern._
 import akka.testkit.{ImplicitSender, TestActors, TestKit}
 import akka.util.Timeout
+import com.github.sebruck.EmbeddedRedis
 import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.locking.config.LockingConfig
+import org.redisson.api.RedissonClient
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import redis.embedded.RedisServer
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class AkkaRedissonLocksSpec extends
-  TestKit(ActorSystem("MyTestSystem1"))
+class AkkaRedissonLocksSpec extends TestKit(ActorSystem("MyTestSystem1")) with EmbeddedRedis
   with ImplicitSender
   with WordSpecLike
   with BeforeAndAfterAll
@@ -22,14 +24,23 @@ class AkkaRedissonLocksSpec extends
 
   implicit val timeout: Timeout = Timeout(5 seconds)
 
-  private val system2 = ActorSystem("MyTestSystem2")
+  var redis: Option[RedisServer] = None
 
-  private val lockActor1 = system.actorOf(LockManagerTesterActor.props())
-  private val lockActor2 = system2.actorOf(LockManagerTesterActor.props())
+  private val system2 = ActorSystem("MyTestSystem2")
+  private var lockActor1: ActorRef = _
+  private var lockActor2: ActorRef = _
+
+  override def beforeAll(): Unit = {
+    redis = Some(startRedis(6379))
+    lockActor1 = system.actorOf(LockManagerTesterActor.props())
+    lockActor2 = system2.actorOf(LockManagerTesterActor.props())
+  }
 
   override def afterAll {
     TestKit.shutdownActorSystem(system)
     TestKit.shutdownActorSystem(system2)
+    stopRedis(redis.get)
+    //    Thread.sleep(1500)
   }
 
   "basic akka test" must {
@@ -55,7 +66,6 @@ class AkkaRedissonLocksSpec extends
     }
 
     "simple locking inside an other actor" in {
-
 
       val r = Await.result(lockActor2 ? "lock", 5 seconds)
       r match {
@@ -111,13 +121,14 @@ class AkkaRedissonLocksSpec extends
       lockActor1 ! "unlock"
       expectMsg("okay")
     }
-
   }
+
+
 }
 
 class LockManagerTesterActor extends Actor with ActorLogging {
 
-  val redisson = LockingConfig.redisson
+  val redisson: RedissonClient = LockingConfig.redisson
   val lockName = "lockingActor"
 
   override def receive: Receive = {
@@ -139,6 +150,7 @@ class LockManagerTesterActor extends Actor with ActorLogging {
         sender ! "nok"
   }
 }
+
 
 object LockManagerTesterActor {
   def props(): Props = {

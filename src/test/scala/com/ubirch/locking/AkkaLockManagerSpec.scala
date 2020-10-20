@@ -1,35 +1,46 @@
 package com.ubirch.locking
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import akka.pattern._
 import akka.testkit.{ImplicitSender, TestActors, TestKit}
 import akka.util.Timeout
+import com.github.sebruck.EmbeddedRedis
 import com.typesafe.scalalogging.StrictLogging
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import redis.embedded.RedisServer
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class AkkaLockManagerSpec extends
-  TestKit(ActorSystem("MyTestSystem1"))
+class AkkaLockManagerSpec extends TestKit(ActorSystem("MyTestSystem1")) with EmbeddedRedis
   with ImplicitSender
   with WordSpecLike
   with BeforeAndAfterAll
   with Matchers
   with StrictLogging {
 
+
   implicit val timeout: Timeout = Timeout(5 seconds)
 
-  private val system2 = ActorSystem("MyTestSystem2")
+  var redis: Option[RedisServer] = None
 
-  private val lockActor1 = system.actorOf(LockTesterActor.props())
-  private val lockActor2 = system2.actorOf(LockTesterActor.props())
+  private val system2 = ActorSystem("MyTestSystem2")
+  private var lockActor1: ActorRef = _
+  private var lockActor2: ActorRef = _
+
+  override def beforeAll(): Unit = {
+    redis = Some(startRedis(6379))
+    lockActor1 = system.actorOf(LockTesterActor.props())
+    lockActor2 = system2.actorOf(LockTesterActor.props())
+  }
 
   override def afterAll {
     TestKit.shutdownActorSystem(system)
     TestKit.shutdownActorSystem(system2)
+    stopRedis(redis.get)
   }
+
 
   "basic akka test" must {
 
@@ -44,7 +55,6 @@ class AkkaLockManagerSpec extends
     }
 
     "simple locking inside an actor" in {
-
       lockActor1 ! "lock"
 
       expectMsg("okay")
@@ -54,7 +64,6 @@ class AkkaLockManagerSpec extends
     }
 
     "simple locking inside an other actor" in {
-
 
       val r = Await.result(lockActor2 ? "lock", 5 seconds)
       r match {
@@ -76,7 +85,6 @@ class AkkaLockManagerSpec extends
     }
 
     "simple locking with 2 actors" in {
-
       val r = Await.result(lockActor2 ? "lock", 5 seconds)
       r match {
         case "okay" =>
@@ -110,7 +118,6 @@ class AkkaLockManagerSpec extends
       lockActor1 ! "unlock"
       expectMsg("okay")
     }
-
   }
 }
 

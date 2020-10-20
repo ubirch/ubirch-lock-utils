@@ -3,10 +3,11 @@ package com.ubirch.locking
 import java.util.concurrent.TimeUnit
 
 import com.ubirch.locking.config.LockingConfig
+import org.redisson.api.RedissonClient
 
 trait RLockManager {
 
-  val redisson = LockingConfig.redisson
+  val redisson: RedissonClient = LockingConfig.redisson
 
   def rLock(lockId: String): Boolean = {
     val lock = getLock(lockId)

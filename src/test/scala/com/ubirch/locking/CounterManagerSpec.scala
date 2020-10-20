@@ -1,42 +1,58 @@
 package com.ubirch.locking
 
+import com.github.sebruck.EmbeddedRedis
 import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.util.uuid.UUIDUtil
-import org.scalatest.{FeatureSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, FeatureSpec, Matchers}
+import redis.embedded.RedisServer
 
-class CounterManagerSpec extends FeatureSpec
-  with CounterManager
+class CounterManagerSpec extends FeatureSpec with EmbeddedRedis
+  with BeforeAndAfterAll
   with StrictLogging
   with Matchers {
+
+  var redis: Option[RedisServer] = None
+  var counterManager: CounterManagerImp = _
+
+  class CounterManagerImp extends CounterManager {}
+
+  override def beforeAll(): Unit = {
+    redis = Some(startRedis(6379))
+    counterManager = new CounterManagerImp()
+  }
+
+  override def afterAll {
+    stopRedis(redis.get)
+  }
 
   feature("basic test") {
 
     scenario("inc/get/dec counter") {
       val counterName = s"myLock-${UUIDUtil.uuidStr}"
-      inc(counterName) shouldBe 1l
-      inc(counterName) shouldBe 2l
-      inc(counterName) shouldBe 3l
+      counterManager.inc(counterName) shouldBe 1L
+      counterManager.inc(counterName) shouldBe 2L
+      counterManager.inc(counterName) shouldBe 3L
 
-      get(counterName) shouldBe 3l
+      counterManager.get(counterName) shouldBe 3L
 
-      dec(counterName) shouldBe 2l
-      dec(counterName) shouldBe 1l
-      dec(counterName) shouldBe 0l
+      counterManager.dec(counterName) shouldBe 2L
+      counterManager.dec(counterName) shouldBe 1L
+      counterManager.dec(counterName) shouldBe 0L
 
-      get(counterName) shouldBe 0l
+      counterManager.get(counterName) shouldBe 0L
     }
 
     scenario("inc/reset counter") {
       val counterName = s"myLock-${UUIDUtil.uuidStr}"
-      inc(counterName) shouldBe 1l
-      inc(counterName) shouldBe 2l
-      inc(counterName) shouldBe 3l
-      inc(counterName) shouldBe 4l
-      inc(counterName) shouldBe 5l
+      counterManager.inc(counterName) shouldBe 1L
+      counterManager.inc(counterName) shouldBe 2L
+      counterManager.inc(counterName) shouldBe 3L
+      counterManager.inc(counterName) shouldBe 4L
+      counterManager.inc(counterName) shouldBe 5L
 
-      reset(counterName) shouldBe 0l
+      counterManager.reset(counterName) shouldBe 0L
 
-      get(counterName) shouldBe 0l
+      counterManager.get(counterName) shouldBe 0L
     }
 
 
@@ -56,17 +72,17 @@ class CounterManagerSpec extends FeatureSpec
       )
 
       counterNames.foreach { counterName =>
-        inc(counterName) shouldBe 1l
-        inc(counterName) shouldBe 2l
-        inc(counterName) shouldBe 3l
+        counterManager.inc(counterName) shouldBe 1L
+        counterManager.inc(counterName) shouldBe 2L
+        counterManager.inc(counterName) shouldBe 3L
 
-        get(counterName) shouldBe 3l
+        counterManager.get(counterName) shouldBe 3L
 
-        dec(counterName) shouldBe 2l
-        dec(counterName) shouldBe 1l
-        dec(counterName) shouldBe 0l
+        counterManager.dec(counterName) shouldBe 2L
+        counterManager.dec(counterName) shouldBe 1L
+        counterManager.dec(counterName) shouldBe 0L
 
-        get(counterName) shouldBe 0l
+        counterManager.get(counterName) shouldBe 0L
       }
     }
 
@@ -85,19 +101,19 @@ class CounterManagerSpec extends FeatureSpec
         s"myLock-${UUIDUtil.uuidStr}"
       )
 
-      counterNames.foreach(inc(_) shouldBe 1l)
-      counterNames.foreach(inc(_) shouldBe 2l)
-      counterNames.foreach(inc(_) shouldBe 3l)
-      counterNames.foreach(inc(_) shouldBe 4l)
+      counterNames.foreach(counterManager.inc(_) shouldBe 1L)
+      counterNames.foreach(counterManager.inc(_) shouldBe 2L)
+      counterNames.foreach(counterManager.inc(_) shouldBe 3L)
+      counterNames.foreach(counterManager.inc(_) shouldBe 4L)
 
-      counterNames.foreach(get(_) shouldBe 4l)
+      counterNames.foreach(counterManager.get(_) shouldBe 4L)
 
-      counterNames.foreach(dec(_) shouldBe 3l)
-      counterNames.foreach(dec(_) shouldBe 2l)
-      counterNames.foreach(dec(_) shouldBe 1l)
-      counterNames.foreach(dec(_) shouldBe 0l)
+      counterNames.foreach(counterManager.dec(_) shouldBe 3L)
+      counterNames.foreach(counterManager.dec(_) shouldBe 2L)
+      counterNames.foreach(counterManager.dec(_) shouldBe 1L)
+      counterNames.foreach(counterManager.dec(_) shouldBe 0L)
 
-      counterNames.foreach(get(_) shouldBe 0l)
+      counterNames.foreach(counterManager.get(_) shouldBe 0L)
     }
   }
 }
