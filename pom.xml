@@ -70,19 +70,20 @@
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 
-        <scala.major.version>2.11</scala.major.version>
-        <scala.version>2.11.12</scala.version>
-        <scala.compat.version>2.11</scala.compat.version>
-        <scalatest.version>3.0.5</scalatest.version>
+        <scala.major.version>2.13</scala.major.version>
+        <scala.version>2.13.6</scala.version>
+        <scala.compat.version>2.13</scala.compat.version>
+        <scalatest.version>3.2.10</scalatest.version>
+        <scalatest-embedded-redis.version>0.4.0</scalatest-embedded-redis.version>
 
         <ubirch-uuid.version>0.1.5-SNAPSHOT</ubirch-uuid.version>
         <ubirch-redis.version>0.6.2-SNAPSHOT</ubirch-redis.version>
-        <akka.version>2.5.11</akka.version>
-        <redisson.version>3.7.5</redisson.version>
-        <rediscala.version>1.8.0</rediscala.version>
-        <scala-logging.version>3.9.0</scala-logging.version>
-        <slf4j.version>1.7.25</slf4j.version>
-        <logback.version>1.2.3</logback.version>
+        <akka.version>2.6.18</akka.version>
+        <redisson.version>3.16.7</redisson.version>
+        <rediscala.version>1.9.0</rediscala.version>
+        <scala-logging.version>3.9.4</scala-logging.version>
+        <slf4j.version>1.7.32</slf4j.version>
+        <logback.version>1.2.10</logback.version>
 
         <!-- plugins -->
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
@@ -153,7 +154,7 @@
         <dependency>
             <groupId>com.github.sebruck</groupId>
             <artifactId>scalatest-embedded-redis_${scala.major.version}</artifactId>
-            <version>0.2.0</version>
+            <version>${scalatest-embedded-redis.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- Logging -->

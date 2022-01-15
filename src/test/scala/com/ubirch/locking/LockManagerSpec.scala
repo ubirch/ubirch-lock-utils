@@ -2,10 +2,12 @@ package com.ubirch.locking
 
 import com.github.sebruck.EmbeddedRedis
 import com.ubirch.util.uuid.UUIDUtil
-import org.scalatest.{BeforeAndAfterAll, FeatureSpec, Matchers}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
 import redis.embedded.RedisServer
 
-class LockManagerSpec extends FeatureSpec with EmbeddedRedis
+class LockManagerSpec extends AnyFeatureSpec with EmbeddedRedis
   with BeforeAndAfterAll
   with Matchers {
 
@@ -19,20 +21,20 @@ class LockManagerSpec extends FeatureSpec with EmbeddedRedis
     lockManager = new LockManagerImpl()
   }
 
-  override def afterAll {
+  override def afterAll(): Unit = {
     stopRedis(redis.get)
   }
 
 
-  feature("basic test") {
+  Feature("basic test") {
 
-    scenario("create a lock") {
+    Scenario("create a lock") {
       val lockName = s"myLock-${UUIDUtil.uuidStr}"
       lockManager.lock(lockName) shouldBe true
       lockManager.unlock(lockName) shouldBe true
     }
 
-    scenario("no lock") {
+    Scenario("no lock") {
       val lockName = s"myLock-${UUIDUtil.uuidStr}"
       lockManager.unlock(lockName) shouldBe false
     }

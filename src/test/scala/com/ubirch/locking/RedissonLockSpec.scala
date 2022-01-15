@@ -4,10 +4,12 @@ import com.github.sebruck.EmbeddedRedis
 import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.locking.config.LockingConfig
 import com.ubirch.util.uuid.UUIDUtil
-import org.scalatest.{BeforeAndAfterAll, FeatureSpec, Matchers}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
 import redis.embedded.RedisServer
 
-class RedissonLockSpec extends FeatureSpec with EmbeddedRedis
+class RedissonLockSpec extends AnyFeatureSpec with EmbeddedRedis
   with StrictLogging
   with BeforeAndAfterAll
   with Matchers {
@@ -18,13 +20,13 @@ class RedissonLockSpec extends FeatureSpec with EmbeddedRedis
     redis = Some(startRedis(6379))
   }
 
-  override def afterAll {
+  override def afterAll(): Unit = {
     stopRedis(redis.get)
   }
 
-  feature("basic test") {
+  Feature("basic test") {
 
-    scenario("create a lock") {
+    Scenario("create a lock") {
 
       val lockName = s"myLock-${UUIDUtil.uuidStr}"
       val lock1 = LockingConfig.redisson.getLock(lockName)
@@ -34,14 +36,14 @@ class RedissonLockSpec extends FeatureSpec with EmbeddedRedis
       lock1.isLocked shouldBe false
     }
 
-    scenario("no lock") {
+    Scenario("no lock") {
 
       val lockName = s"myLock-${UUIDUtil.uuidStr}"
       val lock1 = LockingConfig.redisson.getLock(lockName)
       lock1.isLocked shouldBe false
     }
 
-    scenario("read/write lock") {
+    Scenario("read/write lock") {
 
       val lockName = s"myLock-${UUIDUtil.uuidStr}"
 
@@ -71,7 +73,7 @@ class RedissonLockSpec extends FeatureSpec with EmbeddedRedis
       lock1.writeLock().isLocked shouldBe false
     }
 
-    scenario("simple semaphore test") {
+    Scenario("simple semaphore test") {
 
       val semaphore = LockingConfig.redisson.getSemaphore("semaphore")
       semaphore.tryAcquire shouldBe false

@@ -6,7 +6,9 @@ import akka.testkit.{ImplicitSender, TestActors, TestKit}
 import akka.util.Timeout
 import com.github.sebruck.EmbeddedRedis
 import com.typesafe.scalalogging.StrictLogging
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 import redis.embedded.RedisServer
 
 import scala.concurrent.Await
@@ -15,7 +17,7 @@ import scala.language.postfixOps
 
 class AkkaLockManagerSpec extends TestKit(ActorSystem("MyTestSystem1")) with EmbeddedRedis
   with ImplicitSender
-  with WordSpecLike
+  with AnyWordSpecLike
   with BeforeAndAfterAll
   with Matchers
   with StrictLogging {
@@ -35,7 +37,7 @@ class AkkaLockManagerSpec extends TestKit(ActorSystem("MyTestSystem1")) with Emb
     lockActor2 = system2.actorOf(LockTesterActor.props())
   }
 
-  override def afterAll {
+  override def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
     TestKit.shutdownActorSystem(system2)
     stopRedis(redis.get)
@@ -131,15 +133,15 @@ class LockTesterActor extends Actor
     case "lock" =>
       log.debug("try to get lock")
       if (lock)
-        sender ! "okay"
+        sender() ! "okay"
       else
-        sender ! "nok"
+        sender() ! "nok"
     case "unlock" =>
       log.debug("try unlock")
       if (unlock)
-        sender ! "okay"
+        sender() ! "okay"
       else
-        sender ! "nok"
+        sender() ! "nok"
   }
 }
 
