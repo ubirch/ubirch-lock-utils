@@ -3,10 +3,12 @@ package com.ubirch.locking
 import com.github.sebruck.EmbeddedRedis
 import com.typesafe.scalalogging.StrictLogging
 import com.ubirch.util.uuid.UUIDUtil
-import org.scalatest.{BeforeAndAfterAll, FeatureSpec, Matchers}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
 import redis.embedded.RedisServer
 
-class CounterManagerSpec extends FeatureSpec with EmbeddedRedis
+class CounterManagerSpec extends AnyFeatureSpec with EmbeddedRedis
   with BeforeAndAfterAll
   with StrictLogging
   with Matchers {
@@ -21,13 +23,13 @@ class CounterManagerSpec extends FeatureSpec with EmbeddedRedis
     counterManager = new CounterManagerImp()
   }
 
-  override def afterAll {
+  override def afterAll(): Unit = {
     stopRedis(redis.get)
   }
 
-  feature("basic test") {
+  Feature("basic test") {
 
-    scenario("inc/get/dec counter") {
+    Scenario("inc/get/dec counter") {
       val counterName = s"myLock-${UUIDUtil.uuidStr}"
       counterManager.inc(counterName) shouldBe 1L
       counterManager.inc(counterName) shouldBe 2L
@@ -42,7 +44,7 @@ class CounterManagerSpec extends FeatureSpec with EmbeddedRedis
       counterManager.get(counterName) shouldBe 0L
     }
 
-    scenario("inc/reset counter") {
+    Scenario("inc/reset counter") {
       val counterName = s"myLock-${UUIDUtil.uuidStr}"
       counterManager.inc(counterName) shouldBe 1L
       counterManager.inc(counterName) shouldBe 2L
@@ -56,7 +58,7 @@ class CounterManagerSpec extends FeatureSpec with EmbeddedRedis
     }
 
 
-    scenario("inc/get/dec counters") {
+    Scenario("inc/get/dec counters") {
       val counterNames = List(
         s"myLock-${UUIDUtil.uuidStr}",
         s"myLock-${UUIDUtil.uuidStr}",
@@ -86,7 +88,7 @@ class CounterManagerSpec extends FeatureSpec with EmbeddedRedis
       }
     }
 
-    scenario("inc/get/dec counters 2") {
+    Scenario("inc/get/dec counters 2") {
       val counterNames = List(
         s"myLock-${UUIDUtil.uuidStr}",
         s"myLock-${UUIDUtil.uuidStr}",
